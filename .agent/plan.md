@@ -17,10 +17,19 @@ Exista posibilitatea sa adaugam mai multa mobila? Ike? Ar trebui creata. Ce inpu
   - Trecere fluentă între OrbitControls și TransformControls
 - [x] Adăugare butoane/comenzi rapide în interfață pentru comutare gizmo (Mută / Rotește)
 - [x] Sincronizare fișiere (`odaia.html`, `odaia-local.html`) și repository git
+- [x] Înregistrare piese IKEA în catalogul `CAT` (Kallax 2x2, Kallax 2x4, Billy, Malm 3, Malm 4, Poäng, Micke, Bestå) + adăugare filtru „IKEA” în `CAT_GROUPS`
+- [x] Implementare buildere geometrice 3D procedurale în `BUILD` (Kallax, Billy, Malm, Poäng, Micke, Bestå)
+- [x] Implementare simboluri arhitecturale detaliate 2D pe plan (`topSymbol` / `drawPlanItem`)
+- [x] Actualizare filtrare și căutare în tab-ul Catalog (`renderCatalog`)
+- [x] Verificare sintaxă JS (node --check) și testare în server local
+- [x] Sincronizare fișiere (`odaia.html`, `odaia-local.html`, repo git) și commit
 
 ## Verification
 
 - La selectarea unei piese de mobilier în 3D (mod Orbit), apar săgețile 3D de control (TransformControls).
 - Tragerea de săgeți mută obiectul pe axele X, Z și Y (elevație), actualizând simultan cotele în Proprietăți și Plan 2D.
 - Rotirea camerei OrbitControls continuă să funcționeze când nu se trage de gizmo.
+- Toate piesele IKEA noi apar în Catalog sub filtrul dedicat „IKEA”, precum și în categoriile lor (Living, Dormitor, Birou).
+- Modelele 3D au detalii fidel proporționate și materiale procedurale fără imagini externe.
+- Simbolurile 2D pe plan arată clar structura internă a fiecărei piese.
 - Verificare consolă browser pentru 0 erori.

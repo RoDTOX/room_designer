@@ -632,7 +632,7 @@ const CAT = {
   toilet: { n: 'Vas WC', g: 'Baie', w: 0.38, d: 0.65, h: 0.78, c: '#FAFAF8' },
   sink: { n: 'Lavoar', g: 'Baie', w: 0.6, d: 0.46, h: 0.86, c: '#F2F0EB' },
   radiator: { n: 'Calorifer', g: 'Baie', w: 0.8, d: 0.08, h: 0.6, e: 0.12, c: '#F4F4F2', wall: 1 },
-  pax: { n: 'Dulap PAX deschis', g: 'Dormitor', w: 0.75, d: 0.58, h: 2.01, c: '#F6F5F2' },
+  pax: { n: 'Dulap PAX deschis', g: 'Dormitor', w: 0.75, d: 0.58, h: 2.01, c: '#F6F5F2', ikea: 1 },
   glider: { n: 'Balansoar', g: 'Dormitor', w: 0.72, d: 0.8, h: 1.0, c: '#A7A9AD', t: 'fabric' },
   wcHung: { n: 'WC suspendat', g: 'Baie', w: 0.6, d: 0.75, h: 1.15, c: '#D9CCBA' },
   washer: { n: 'Mașină de spălat', g: 'Baie', w: 0.6, d: 0.6, h: 0.85, c: '#F4F4F2' },
@@ -646,8 +646,16 @@ const CAT = {
   chairX: { n: 'Scaun cu spătar X', g: 'Bucătărie', w: 0.43, d: 0.5, h: 0.91, c: '#F5F3EE' },
   boiler: { n: 'Centrală termică', g: 'Bucătărie', w: 0.42, d: 0.33, h: 0.72, e: 1.5, c: '#F4F3EF', wall: 1 },
   box: { n: 'Obiect generic', g: 'Altele', w: 0.5, d: 0.5, h: 0.5, c: '#B8C4BE' },
+  kallax22: { n: 'Etajeră KALLAX 2×2', g: 'Living', w: 0.77, d: 0.39, h: 0.77, c: '#FAFAF8', ikea: 1 },
+  kallax24: { n: 'Etajeră KALLAX 2×4', g: 'Living', w: 0.77, d: 0.39, h: 1.47, c: '#D9C3A3', t: 'oak', ikea: 1 },
+  billy: { n: 'Bibliotecă BILLY', g: 'Living', w: 0.80, d: 0.28, h: 2.02, c: '#F6F5F2', ikea: 1 },
+  malm3: { n: 'Comodă MALM 3 sertare', g: 'Dormitor', w: 0.80, d: 0.48, h: 0.78, c: '#2B2725', ikea: 1 },
+  malm4: { n: 'Comodă MALM 4 sertare', g: 'Dormitor', w: 0.80, d: 0.48, h: 1.00, c: '#FAFAF8', ikea: 1 },
+  poang: { n: 'Fotoliu POÄNG', g: 'Living', w: 0.68, d: 0.82, h: 1.00, c: '#4A4E53', t: 'fabric', ikea: 1 },
+  micke: { n: 'Birou MICKE', g: 'Birou', w: 1.05, d: 0.50, h: 0.75, c: '#FAFAF8', ikea: 1 },
+  besta: { n: 'Comodă TV BESTÅ', g: 'Living', w: 1.20, d: 0.42, h: 0.64, c: '#3D3531', ikea: 1 },
 };
-const CAT_GROUPS = ['Toate', 'Dormitor', 'Living', 'Birou', 'Bucătărie', 'Baie', 'Lumini', 'Decor', 'Altele'];
+const CAT_GROUPS = ['Toate', 'IKEA', 'Dormitor', 'Living', 'Birou', 'Bucătărie', 'Baie', 'Lumini', 'Decor', 'Altele'];
 const bkey = type => (CAT[type] && CAT[type].b) || (CAT[type] ? type : 'box');
 const PALETTE = ['#F4F1EA', '#EDE8DF', '#E3E6E1', '#D5DBD3', '#C8D3DB', '#9FB2C6', '#7C8C99', '#4E5D6C', '#2E3440', '#1E2124', '#E3B3BF', '#D98E73', '#C9A36A', '#9AAE9B', '#5E7D63', '#B89F86'];
 
@@ -1520,6 +1528,123 @@ const BUILD = {
     B(g, w * .55, .07, .006, 0, h * .14, d / 2 + .002, M.black, .004); B(g, .06, .025, .004, -w * .12, h * .14, d / 2 + .006, std('#57C2E6', .3));
     for (let i = 0; i < 4; i++) Cy(g, .011, .011, .35, -w / 2 + .08 + i * (w - .16) / 3, -.17, -d / 2 + .09, M.steel, 8);
   },
+  kallax22(g, it, m) {
+    const { w, d, h } = it, tf = .036, ti = .016;
+    B(g, w, tf, d, 0, tf / 2, 0, m, .004);
+    B(g, w, tf, d, 0, h - tf / 2, 0, m, .004);
+    const sideH = h - 2 * tf;
+    B(g, tf, sideH, d, -w / 2 + tf / 2, h / 2, 0, m, .004);
+    B(g, tf, sideH, d, w / 2 - tf / 2, h / 2, 0, m, .004);
+    const innerW = w - 2 * tf, innerH = sideH;
+    B(g, ti, innerH, d, 0, h / 2, 0, m, .003);
+    B(g, innerW, ti, d, 0, h / 2, 0, m, .003);
+    books(g, -innerW / 2 + .02, -ti / 2 - .02, tf, 0, d - .08, innerH / 2 - .05, hashStr(it.id));
+  },
+  kallax24(g, it, m) {
+    const { w, d, h } = it, tf = .036, ti = .016;
+    B(g, w, tf, d, 0, tf / 2, 0, m, .004);
+    B(g, w, tf, d, 0, h - tf / 2, 0, m, .004);
+    const sideH = h - 2 * tf;
+    B(g, tf, sideH, d, -w / 2 + tf / 2, h / 2, 0, m, .004);
+    B(g, tf, sideH, d, w / 2 - tf / 2, h / 2, 0, m, .004);
+    const innerW = w - 2 * tf, innerH = sideH;
+    B(g, ti, innerH, d, 0, h / 2, 0, m, .003);
+    const stepY = innerH / 4, seed = hashStr(it.id);
+    for (let i = 1; i <= 3; i++) B(g, innerW, ti, d, 0, tf + stepY * i, 0, m, .003);
+    books(g, -innerW / 2 + .02, -ti / 2 - .02, tf, 0, d - .08, stepY - .05, seed);
+    books(g, ti / 2 + .02, innerW / 2 - .02, tf + stepY * 2, 0, d - .08, stepY - .05, seed + 1);
+  },
+  billy(g, it, m) {
+    const { w, d, h } = it, t = .018, pl = .08;
+    B(g, w - 2 * t, pl, .018, 0, pl / 2, d / 2 - .02, m);
+    B(g, w - 2 * t, t, d, 0, pl + t / 2, 0, m, .003);
+    B(g, w, t, d, 0, h - t / 2, 0, m, .003);
+    B(g, t, h, d, -w / 2 + t / 2, h / 2, 0, m, .003);
+    B(g, t, h, d, w / 2 - t / 2, h / 2, 0, m, .003);
+    B(g, w - 2 * t, h - pl, .006, 0, pl + (h - pl) / 2, -d / 2 + .003, m);
+    const usableH = h - pl - t, n = 5, step = usableH / n, seed = hashStr(it.id);
+    for (let i = 1; i < n; i++) {
+      const y = pl + t + step * i;
+      B(g, w - 2 * t, t, d - .01, 0, y, .005, m, .002);
+      books(g, -w / 2 + t + .02, w / 2 - t - .02, y + t / 2, .01, d - .06, step - .04, seed + i);
+    }
+    books(g, -w / 2 + t + .02, w / 2 - t - .02, pl + t, .01, d - .06, step - .04, seed);
+  },
+  malm3(g, it, m) { BUILD._malm(g, it, m, 3); },
+  malm4(g, it, m) { BUILD._malm(g, it, m, 4); },
+  _malm(g, it, m, n) {
+    const { w, d, h } = it, pl = .06, t = .02;
+    B(g, w - .02, pl, d - .05, 0, pl / 2, -.01, m);
+    B(g, w, h - pl, d - .02, 0, pl + (h - pl) / 2, -.01, m, .006);
+    B(g, w, t, d, 0, h - t / 2, 0, m, .004);
+    const drawerH = (h - pl - t - .01) / n;
+    for (let i = 0; i < n; i++) {
+      const y = pl + drawerH * i + drawerH / 2;
+      B(g, w - .01, drawerH - .012, .018, 0, y - .004, d / 2 - .009, m, .004);
+      B(g, w - .03, .01, .012, 0, y + drawerH / 2 - .01, d / 2 - .014, M.black);
+    }
+  },
+  poang(g, it, m) {
+    const { w, d, h } = it;
+    const woodMat = getMat({ c: '#E2CEB1', t: 'lightwood' }, { rough: .55 });
+    const aw = .045, th = .024;
+    for (const s of [-1, 1]) {
+      const x = s * (w / 2 - aw / 2);
+      B(g, aw, th, d * .85, x, th / 2, -d * .02, woodMat, .006);
+      const upright = B(g, aw, .44, th, x, .22, -d * .18, woodMat, .006);
+      upright.rotation.x = .22;
+      B(g, aw, th, d * .72, x, .48, d * .05, woodMat, .008);
+      const frontLeg = B(g, aw, .48, th, x, .24, d * .34, woodMat, .006);
+      frontLeg.rotation.x = -.15;
+    }
+    B(g, w - 2 * aw, th, .04, 0, th / 2, d * .25, woodMat);
+    B(g, w - 2 * aw, th, .04, 0, th / 2, -d * .35, woodMat);
+    B(g, w - 2 * aw, th, .04, 0, .46, -d * .22, woodMat);
+    const seat = B(g, w - 2 * aw - .04, .08, d * .52, 0, .32, d * .04, m, .035);
+    seat.rotation.x = -.14;
+    const backH = h - .32;
+    const back = B(g, w - 2 * aw - .05, backH * .85, .07, 0, .32 + (backH * .85) / 2, -d * .18, m, .035);
+    back.rotation.x = .22;
+    const head = B(g, w - 2 * aw - .08, .16, .09, 0, h - .12, -d * .28, m, .04);
+    head.rotation.x = .22;
+  },
+  micke(g, it, m) {
+    const { w, d, h } = it, topT = .028;
+    B(g, w, topT, d, 0, h - topT / 2, 0, m, .005);
+    Cy(g, .032, .032, .004, w * .28, h + .001, -d / 2 + .08, M.metal, 16);
+    Cy(g, .024, .024, .006, w * .28, h + .002, -d / 2 + .08, M.black, 16);
+    const dwH = .085;
+    B(g, w * .62, dwH, d - .04, -w * .12, h - topT - dwH / 2, .01, m, .004);
+    B(g, w * .25, .012, .01, -w * .12, h - topT - dwH + .01, d / 2 - .01, M.frame, .003);
+    B(g, .028, h - topT, d - .02, w / 2 - .014, (h - topT) / 2, 0, m, .004);
+    const legMat = handleMat(it.c);
+    const lx = -w / 2 + .018;
+    B(g, .025, h - topT, .025, lx, (h - topT) / 2, -d / 2 + .03, legMat);
+    B(g, .025, h - topT, .025, lx, (h - topT) / 2, d / 2 - .03, legMat);
+    B(g, .025, .025, d - .035, lx, .0125, 0, legMat);
+    B(g, w - .06, .32, .018, 0, h - topT - .16, -d / 2 + .04, m);
+    const nwx = -w * .12;
+    B(g, .32, .012, .22, nwx, h + .006, .03, M.steel, .004);
+    const scr = B(g, .32, .21, .008, nwx, h + .11, -.075, M.steel, .003); scr.rotation.x = -.25;
+    const sc2 = B(g, .30, .18, .002, nwx, h + .112, -.068, M.screen); sc2.rotation.x = -.25;
+  },
+  besta(g, it, m) {
+    const { w, d, h } = it, legH = .10, carcassH = h - legH;
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) Cy(g, .018, .018, legH, sx * (w / 2 - .06), legH / 2, sz * (d / 2 - .06), M.black, 12);
+    Cy(g, .016, .016, legH, 0, legH / 2, 0, M.black, 8);
+    B(g, w, carcassH, d - .015, 0, legH + carcassH / 2, -.0075, m, .006);
+    const dw = w / 2 - .006;
+    for (let i = 0; i < 2; i++) {
+      const cx = -w / 4 + i * (w / 2);
+      B(g, dw, carcassH - .01, .018, cx, legH + carcassH / 2, d / 2 - .006, m, .004);
+    }
+    B(g, .14, .01, .04, 0, h - .005, -d / 2 + .02, M.black);
+    const tw = Math.min(w * .88, 1.35), th = tw * .5625;
+    B(g, .28, .014, .16, 0, h + .007, -.02, M.black);
+    B(g, .045, .08, .028, 0, h + .045, -.04, M.black);
+    B(g, tw, th + .018, .03, 0, h + .08 + th / 2, -.04, M.black, .006);
+    B(g, tw - .02, th - .006, .004, 0, h + .08 + th / 2, -.023, M.screen);
+  },
   box(g, it, m) { B(g, it.w, it.h, it.d, 0, it.h / 2, 0, m, .012); },
 };
 function buildItemObj(it) {
@@ -2176,6 +2301,77 @@ function topSymbol(c, k, w, d, lw, it, dashed) {
     case 'tvUnit': { RR(-w / 2, -d / 2, w, d, .02); fillStroke(); c.lineWidth = lw * 3; c.strokeStyle = PC.ink; c.beginPath(); const tw = Math.min(w * .82, 1.45); c.moveTo(-tw / 2, -.05); c.lineTo(tw / 2, -.05); c.stroke(); break; }
     case 'bookshelf': case 'wallShelf': { RR(-w / 2, -d / 2, w, d); fillStroke(); c.beginPath(); c.moveTo(-w / 2 + .02, -d / 2 + .02); c.lineTo(w / 2 - .02, -d / 2 + .02); c.stroke(); break; }
     case 'desk': case 'diningTable': case 'coffeeTable': { RR(-w / 2, -d / 2, w, d, .02); fillStroke(); break; }
+    case 'kallax22': {
+      RR(-w / 2, -d / 2, w, d, .02); fillStroke();
+      const frame = .035;
+      c.strokeRect(-w / 2 + frame, -d / 2 + frame, w - 2 * frame, d - 2 * frame);
+      c.beginPath();
+      c.moveTo(0, -d / 2 + frame); c.lineTo(0, d / 2 - frame);
+      c.moveTo(-w / 2 + frame, 0); c.lineTo(w / 2 - frame, 0);
+      c.lineWidth = lw * 1.5; c.stroke(); c.lineWidth = lw;
+      break;
+    }
+    case 'kallax24': {
+      RR(-w / 2, -d / 2, w, d, .02); fillStroke();
+      const frame = .035;
+      c.strokeRect(-w / 2 + frame, -d / 2 + frame, w - 2 * frame, d - 2 * frame);
+      c.beginPath();
+      c.moveTo(0, -d / 2 + frame); c.lineTo(0, d / 2 - frame);
+      for (let i = 1; i <= 3; i++) {
+        const z = -d / 2 + frame + ((d - 2 * frame) / 4) * i;
+        c.moveTo(-w / 2 + frame, z); c.lineTo(w / 2 - frame, z);
+      }
+      c.lineWidth = lw * 1.5; c.stroke(); c.lineWidth = lw;
+      break;
+    }
+    case 'billy': {
+      RR(-w / 2, -d / 2, w, d, .01); fillStroke();
+      c.beginPath();
+      c.moveTo(-w / 2, -d / 2 + .018); c.lineTo(w / 2, -d / 2 + .018);
+      c.moveTo(-w / 2 + .02, d / 2 - .02); c.lineTo(w / 2 - .02, d / 2 - .02);
+      c.stroke();
+      break;
+    }
+    case 'malm3': case 'malm4': {
+      RR(-w / 2, -d / 2, w, d, .02); fillStroke();
+      c.beginPath();
+      c.moveTo(-w / 2, d / 2 - .03); c.lineTo(w / 2, d / 2 - .03);
+      c.stroke();
+      const n = k === 'malm3' ? 3 : 4;
+      for (let i = 1; i < n; i++) {
+        c.beginPath();
+        c.moveTo(-w / 2 + .04, -d / 2 + (d / n) * i);
+        c.lineTo(w / 2 - .04, -d / 2 + (d / n) * i);
+        c.globalAlpha = .35; c.stroke(); c.globalAlpha = 1;
+      }
+      break;
+    }
+    case 'poang': {
+      RR(-w / 2, -d / 2, w, d, .08); fillStroke();
+      const aw = .05;
+      c.beginPath();
+      c.rect(-w / 2, -d / 2, aw, d);
+      c.rect(w / 2 - aw, -d / 2, aw, d);
+      c.roundRect(-w / 2 + aw + .03, -d / 2 + .12, w - 2 * (aw + .03), d - .18, .05);
+      c.stroke();
+      break;
+    }
+    case 'micke': {
+      RR(-w / 2, -d / 2, w, d, .02); fillStroke();
+      c.beginPath();
+      c.arc(w * .25, -d / 2 + .07, .035, 0, 7);
+      c.moveTo(-w / 2 + .04, d / 2 - .08); c.lineTo(w / 2 - .04, d / 2 - .08);
+      c.stroke();
+      break;
+    }
+    case 'besta': {
+      RR(-w / 2, -d / 2, w, d, .02); fillStroke();
+      c.beginPath();
+      c.moveTo(0, d / 2); c.lineTo(0, -d / 2 + .04);
+      c.moveTo(-w / 2, d / 2 - .025); c.lineTo(w / 2, d / 2 - .025);
+      c.stroke();
+      break;
+    }
     default: { RR(-w / 2, -d / 2, w, d, .02); fillStroke(); c.lineWidth = lw * 2.5; c.beginPath(); c.moveTo(-w / 2 + .02, d / 2 - .012); c.lineTo(w / 2 - .02, d / 2 - .012); c.globalAlpha = .5; c.stroke(); c.globalAlpha = 1; }
   }
   c.setLineDash([]);
@@ -2371,7 +2567,7 @@ let lastChecks = [];
 function computeChecks() {
   const out = [], t = S.wallT;
   const solid = S.items.filter(it => { const k = bkey(it.type); return k !== 'rug' && k !== 'rugRound' && k !== 'pendant'; });
-  const tuck = new Set(['chair', 'officeChair', 'chairX']), tables = new Set(['desk', 'diningTable']);
+  const tuck = new Set(['chair', 'officeChair', 'chairX']), tables = new Set(['desk', 'diningTable', 'micke']);
   for (let i = 0; i < solid.length; i++) for (let j = i + 1; j < solid.length; j++) {
     const a = solid[i], b = solid[j]; const ae = a.e || 0, be = b.e || 0;
     if (Math.min(ae + a.h, be + b.h) - Math.max(ae, be) <= .01) continue;
@@ -2412,8 +2608,19 @@ $('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-ta
 
 function renderCatalog() {
   const el = $('#tab-catalog'); const q = UI.catQuery.trim().toLowerCase();
-  const types = Object.keys(CAT).filter(k => (UI.catGroup === 'Toate' || CAT[k].g === UI.catGroup) && (!q || CAT[k].n.toLowerCase().includes(q) || CAT[k].g.toLowerCase().includes(q)));
-  el.innerHTML = `<input class="search" id="catSearch" type="search" placeholder="Caută: pat, masă, covor…" value="${esc(UI.catQuery)}" aria-label="Caută în catalog">
+  const types = Object.keys(CAT).filter(k => {
+    const item = CAT[k];
+    const matchGroup = UI.catGroup === 'Toate'
+      || (UI.catGroup === 'IKEA' && item.ikea)
+      || item.g === UI.catGroup;
+    const matchQuery = !q
+      || item.n.toLowerCase().includes(q)
+      || item.g.toLowerCase().includes(q)
+      || (item.ikea && 'ikea'.includes(q))
+      || k.toLowerCase().includes(q);
+    return matchGroup && matchQuery;
+  });
+  el.innerHTML = `<input class="search" id="catSearch" type="search" placeholder="Caută: pat, masă, kallax, ikea…" value="${esc(UI.catQuery)}" aria-label="Caută în catalog">
     <div class="chips">${CAT_GROUPS.map(g => `<button class="chip" data-g="${g}" aria-pressed="${g === UI.catGroup}">${g}</button>`).join('')}</div>
     <div class="cat-grid">${types.map(k => `<div class="cat-card" draggable="true" data-type="${k}" role="button" tabindex="0" title="Clic pentru a adăuga, sau trage pe plan / în 3D"><canvas width="120" height="92" data-thumb="${k}"></canvas><b>${esc(CAT[k].n)}</b><small>${cm(CAT[k].w)}×${cm(CAT[k].d)}</small></div>`).join('') || '<div class="empty">Nimic găsit.</div>'}</div>
     <p class="note">Clic adaugă obiectul în camera selectată. Poți și să-l tragi direct pe plan sau în vederea 3D.</p>`;
