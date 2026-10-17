@@ -3,32 +3,24 @@
 ## Original request (verbatim)
 
 ```text
-muta continutul asta de aici, in folderul nostru C:/Users/BSeceleanu/OneDrive - Luxoft/Documents/Odaia
-
-Aici e prompt ul raspuns de alt AI, cel care a creat asta:
-Proiectul e aproape portabil deja. Tot Odaia este un singur fișier HTML (`odaia.html`, ~230 KB), fără npm și fără pas de build. Three.js se încarcă de pe CDN. Ca să-l poată modifica oricine sau orice AI, ai nevoie de un folder cu sursa, de o notă de arhitectură și de un mod de rulare.
-
-**1. Folderul proiectului** (în `Documents\Odaia`, care există deja):
-
-- `odaia.html`: sursa completă, aceeași cu artifactul.
-- `README.md`: cum se rulează și cum se publică.
-- `AGENTS.md`: ghidul pentru AI, cu harta fișierului (secțiunile CSS, texturi, catalog, geometrie, builderele de obiecte, plan 2D, verificări), convențiile și pașii de verificare.
-- `sample-proiect.json`: exportul apartamentului curent, ca un AI să vadă formatul datelor.
-- Opțional, `git init`, ca să vezi ce a schimbat fiecare AI.
+Exista posibilitatea sa adaugam mai multa mobila? Ike? Ar trebui creata. Ce input ai avea nevoie ? De asemenea as dori sa avem cateva sageti 3d control pentru obiecte, lucrul cu valorile in proprietati e cam tricky
 ```
 
 ## Stage tracker
 
-- [x] Localizare surse, artifacte și istoric de generare din spațiul Claude Desktop (`scratch-2026-09-24-fe3f34`)
-- [x] Generare și validare `sample-proiect.json` din funcția `sampleMine()` (10 camere, 89 obiecte, 10 deschideri)
-- [x] Migrare imagini de referință (13 fișiere foto + hartă lidar) în `reference-photos/`
-- [x] Creare `README.md` complet cu arhitectură, comenzi de rulare și ghid de publicare
-- [x] Creare `AGENTS.md` detaliat pentru ghidarea oricărui model AI (hartă pe secțiuni/linii, convenții, proceduri de verificare)
-- [x] Inițializare `git init` și commit inițial în `C:/Users/BSeceleanu/OneDrive - Luxoft/Documents/Odaia`
-- [x] Sincronizare / copiere proiect în workspace-ul curent `c:\Users\BSeceleanu\.github_repos\room_designer`
+- [x] Răspuns documentat despre adăugarea de mobilier nou / IKEA și inputurile necesare
+- [x] Import `TransformControls` din `three/addons/controls/TransformControls.js` în `odaia.html`
+- [x] Integrare gizmo 3D pe obiectul selectat (`UI.sel.kind === 'item'`):
+  - Săgeți de translație 3D (X, Y pentru elevație, Z)
+  - Mod de rotire 3D (inel de rotație Y)
+  - Sincronizare bidirecțională cu starea `S.items`, panoul de proprietăți și planul 2D
+  - Trecere fluentă între OrbitControls și TransformControls
+- [x] Adăugare butoane/comenzi rapide în interfață pentru comutare gizmo (Mută / Rotește)
+- [x] Sincronizare fișiere (`odaia.html`, `odaia-local.html`) și repository git
 
 ## Verification
 
-- Fișierele `odaia.html`, `odaia-local.html`, `sample-proiect.json`, `README.md`, `AGENTS.md`, `reference-photos/` există în directorul țintă.
-- `sample-proiect.json` este JSON valid și poate fi parsat fără erori.
-- Git repository este inițializat și conține istoricul curat.
+- La selectarea unei piese de mobilier în 3D (mod Orbit), apar săgețile 3D de control (TransformControls).
+- Tragerea de săgeți mută obiectul pe axele X, Z și Y (elevație), actualizând simultan cotele în Proprietăți și Plan 2D.
+- Rotirea camerei OrbitControls continuă să funcționeze când nu se trage de gizmo.
+- Verificare consolă browser pentru 0 erori.

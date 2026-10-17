@@ -254,7 +254,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:4px 0}
         <div class="seg" id="modeSeg" role="group" aria-label="Mod vedere"></div>
         <div class="seg" id="wallSeg" role="group" aria-label="Pereți"></div>
       </div>
-      <div class="ov tr"><div class="seg" id="camSeg"></div></div>
+      <div class="ov tr"><div class="seg" id="gizmoSeg" role="group" aria-label="Control 3D" hidden></div><div class="seg" id="camSeg"></div></div>
       <div class="ov bl"><div class="help" id="help"></div></div>
       <div class="crosshair" id="cross" hidden></div>
       <div id="joy" hidden><i></i></div>
@@ -305,6 +305,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:4px 0}
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 window.__odaiaBooted = true;
@@ -843,7 +844,7 @@ function save() {
   }
 }
 
-const UI = { sel: null, tool: 'select', mode: 'orbit', walls: 'cut', night: false, tab: 'catalog', catGroup: 'Toate', catQuery: '' };
+const UI = { sel: null, tool: 'select', mode: 'orbit', walls: 'cut', night: false, tab: 'catalog', catGroup: 'Toate', catQuery: '', gizmoOn: true, gizmoMode: 'translate' };
 const hist = { stack: [], i: -1 };
 function commit() {
   const snap = JSON.stringify(S);
@@ -1653,15 +1654,18 @@ function buildOpening(o, h) {
   return g;
 }
 function rebuildItems() {
+  if (tControls && tControls.object) tControls.detach();
   for (const g of itemObjs.values()) { disposeTree(g); itemsG.remove(g); }
   itemObjs.clear();
   for (const it of S.items) { const g = buildItemObj(it); itemsG.add(g); itemObjs.set(it.id, g); }
   applyLighting();
+  updateGizmo();
 }
 function rebuildItem(id) {
-  const old = itemObjs.get(id); if (old) { disposeTree(old); itemsG.remove(old); itemObjs.delete(id); }
+  const old = itemObjs.get(id); if (old) { if (tControls && tControls.object === old) tControls.detach(); disposeTree(old); itemsG.remove(old); itemObjs.delete(id); }
   const it = findItem(id); if (!it) return;
   const g = buildItemObj(it); itemsG.add(g); itemObjs.set(id, g); applyLighting(); updateSelBox();
+  updateGizmo();
 }
 function placeItemObj(it) { const g = itemObjs.get(it.id); if (!g) return; g.position.set(it.x, bkey(it.type) === 'pendant' ? 0 : (it.e || 0), it.z); g.rotation.y = it.rot; updateSelBox(); }
 function rebuildAll() { buildArch(); rebuildItems(); updateSelBox(); }
@@ -1693,6 +1697,65 @@ const drag3 = { active: false };
 canvas3d.addEventListener('pointerdown', onView3DDown);
 const controls = new OrbitControls(camera, canvas3d);
 controls.enableDamping = true; controls.dampingFactor = .09; controls.maxPolarAngle = HALF_PI - .04; controls.minDistance = 1.2; controls.maxDistance = 45; controls.screenSpacePanning = true;
+
+const tControls = new TransformControls(camera, canvas3d);
+tControls.size = 0.85;
+tControls.setTranslationSnap(0.02);
+tControls.setRotationSnap(THREE.MathUtils.degToRad(15));
+scene.add(tControls.getHelper());
+
+tControls.addEventListener('dragging-changed', e => {
+  controls.enabled = !e.value;
+  if (!e.value) { commit(); refreshPropsValues(); }
+});
+
+tControls.addEventListener('change', () => {
+  if (tControls.object && UI.sel && UI.sel.kind === 'item') {
+    const it = findItem(UI.sel.id);
+    if (it) {
+      it.x = Math.round(tControls.object.position.x * 1000) / 1000;
+      it.z = Math.round(tControls.object.position.z * 1000) / 1000;
+      it.e = Math.max(0, Math.round(tControls.object.position.y * 1000) / 1000);
+      it.rot = tControls.object.rotation.y;
+      tControls.object.rotation.x = 0;
+      tControls.object.rotation.z = 0;
+      planDirty = true;
+      refreshPropsValues();
+      updateSelBox();
+    }
+  }
+});
+
+function updateGizmo() {
+  if (!tControls) return;
+  const s = UI.sel;
+  if (UI.gizmoOn && s && s.kind === 'item' && UI.mode === 'orbit') {
+    const g = itemObjs.get(s.id);
+    if (g) {
+      if (tControls.object !== g) tControls.attach(g);
+      tControls.enabled = true;
+      tControls.getHelper().visible = true;
+      tControls.setMode(UI.gizmoMode || 'translate');
+      if (UI.gizmoMode === 'rotate') {
+        tControls.showX = false; tControls.showY = true; tControls.showZ = false;
+      } else {
+        tControls.showX = true; tControls.showY = true; tControls.showZ = true;
+      }
+      return;
+    }
+  }
+  if (tControls.object) tControls.detach();
+  tControls.enabled = false;
+  if (tControls.getHelper()) tControls.getHelper().visible = false;
+}
+function setGizmoMode(m) {
+  UI.gizmoMode = m; UI.gizmoOn = true;
+  updateGizmo(); renderViewControls(); refreshPropsValues();
+}
+function setGizmoOn(on) {
+  UI.gizmoOn = on;
+  updateGizmo(); renderViewControls(); refreshPropsValues();
+}
 function frameCamera(kind = 'iso') {
   const b = houseBounds(), cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2, span = Math.max(b.x1 - b.x0, b.z1 - b.z0, 3);
   controls.target.set(cx, .6, cz);
@@ -1783,7 +1846,7 @@ function setMode(m) {
   }
   camera.updateProjectionMatrix(); ceilG.visible = m !== 'orbit'; applyTheme();
   $('#cross').hidden = m !== 'fp'; $('#joy').hidden = m === 'orbit' || !matchMedia('(pointer: coarse)').matches;
-  renderViewControls(); drawPlan();
+  updateGizmo(); renderViewControls(); drawPlan();
 }
 const _v = new THREE.Vector3(), _ray = new THREE.Raycaster();
 function updateWalk(dt) {
@@ -1824,8 +1887,19 @@ document.addEventListener('keydown', e => {
   if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
   if (mod && e.key.toLowerCase() === 'd') { e.preventDefault(); duplicateSel(); return; }
   if (mod) return;
-  if (e.key === 'Delete' || e.key === 'Backspace') { deleteSel(); e.preventDefault(); return; }
-  if (e.key === 'r' || e.key === 'R') { rotateSel(e.shiftKey ? -90 : 90); return; }
+  if (e.key === 'r' || e.key === 'R') {
+    if (e.shiftKey) { setGizmoMode('rotate'); toast('Inel 3D: Rotire'); return; }
+    rotateSel(90); return;
+  }
+  if (e.key === 't' || e.key === 'T' || e.key === 'g' || e.key === 'G') {
+    if (UI.sel && UI.sel.kind === 'item') { setGizmoMode('translate'); toast('Săgeți 3D: Mutare'); return; }
+  }
+  if (e.key === 'e' || e.key === 'E') {
+    if (UI.sel && UI.sel.kind === 'item') { setGizmoMode('rotate'); toast('Inel 3D: Rotire'); return; }
+  }
+  if (e.key === 'q' || e.key === 'Q') {
+    if (UI.sel && UI.sel.kind === 'item') { setGizmoOn(!UI.gizmoOn); toast(UI.gizmoOn ? 'Săgeți 3D activate' : 'Săgeți 3D ascunse'); return; }
+  }
   if (e.key === 'v') setTool('select'); else if (e.key === 'c') setTool('room'); else if (e.key === 'u') setTool('door'); else if (e.key === 'f') setTool('window');
   if (e.key.startsWith('Arrow') && UI.sel && UI.sel.kind === 'item') {
     const it = findItem(UI.sel.id), st = e.shiftKey ? .1 : .01; e.preventDefault();
@@ -1842,6 +1916,7 @@ function setNdc(e) { const r = canvas3d.getBoundingClientRect(); ndc.set(((e.cli
 function visibleHit(objs) { const hits = _ray.intersectObjects(objs, true); for (const h of hits) { let o = h.object, vis = true; while (o) { if (!o.visible) { vis = false; break; } o = o.parent; } if (vis) return h; } return null; }
 function onView3DDown(e) {
   if (e.button !== 0) { return; }
+  if (tControls && (tControls.axis || tControls.dragging)) return;
   drag3.sx = e.clientX; drag3.sy = e.clientY; drag3.moved = false; drag3.pointerId = e.pointerId;
   if (UI.mode !== 'orbit') { walk.look = { x: e.clientX, y: e.clientY }; capPtr(canvas3d, e.pointerId); return; }
   setNdc(e);
@@ -1850,8 +1925,11 @@ function onView3DDown(e) {
   if (itemId) {
     const it = findItem(itemId); const p = new THREE.Vector3();
     if (_ray.ray.intersectPlane(floorPlane, p)) {
-      controls.enabled = false; drag3.active = true; drag3.id = itemId; drag3.off = { x: it.x - p.x, z: it.z - p.z };
-      capPtr(canvas3d, e.pointerId); select({ kind: 'item', id: itemId }, true);
+      select({ kind: 'item', id: itemId }, true);
+      if (!UI.gizmoOn) {
+        controls.enabled = false; drag3.active = true; drag3.id = itemId; drag3.off = { x: it.x - p.x, z: it.z - p.z };
+        capPtr(canvas3d, e.pointerId);
+      }
     }
   } else { drag3.pending = hit ? hit.object.userData : null; }
 }
@@ -1904,10 +1982,13 @@ function lookBy(dx, dy) {
 /* ============================== selection & edits ============================== */
 function select(sel, fromClick = false) {
   UI.sel = sel; updateSelBox(); renderProps(); drawPlan();
+  if (typeof updateGizmo === 'function') updateGizmo();
+  if (typeof renderViewControls === 'function') renderViewControls();
   if (sel && fromClick && UI.tab !== 'props') setTab('props');
 }
 function deleteSel() {
   const s = UI.sel; if (!s) return;
+  if (tControls && tControls.object) tControls.detach();
   if (s.kind === 'item') { S.items = S.items.filter(i => i.id !== s.id); const g = itemObjs.get(s.id); if (g) { disposeTree(g); itemsG.remove(g); itemObjs.delete(s.id); } }
   else if (s.kind === 'opening') { S.openings = S.openings.filter(o => o.id !== s.id); buildArch(); }
   else return;
@@ -2387,6 +2468,10 @@ function renderProps() {
       <button class="ibtn" data-act="dup" title="Duplică (Ctrl+D)" aria-label="Duplică">${ic('copy')}</button>
       <button class="ibtn danger" data-act="del" title="Șterge (Delete)" aria-label="Șterge">${ic('trash')}</button></div></div>
       <div class="stack">
+        <div class="row" style="margin-bottom:2px">
+          <button class="btn sm" data-act="gizmoTranslate" style="flex:1;font-size:12px;${UI.gizmoOn && UI.gizmoMode === 'translate' ? 'background:var(--ink);color:var(--panel);border-color:var(--ink)' : ''}">🎯 Săgeți mutare (T)</button>
+          <button class="btn sm" data-act="gizmoRotate" style="flex:1;font-size:12px;${UI.gizmoOn && UI.gizmoMode === 'rotate' ? 'background:var(--ink);color:var(--panel);border-color:var(--ink)' : ''}">🔄 Inel rotire (E)</button>
+        </div>
         <div class="field"><label for="pf-label">Denumire</label><input class="txt" id="pf-label" data-k="label" value="${esc(it.label || '')}" placeholder="${esc(d.n)}"></div>
         <div class="grid3">${numField('w', 'Lățime', cm(it.w))}${numField('d', 'Adâncime', cm(it.d))}${numField('h', bkey(it.type) === 'pendant' ? 'Coborâre' : 'Înălțime', cm(it.h))}</div>
         <div class="grid3">${numField('x', 'Poziție X', cm(it.x))}${numField('z', 'Poziție Z', cm(it.z))}${numField('e', 'De la podea', cm(it.e || 0))}</div>
@@ -2425,7 +2510,7 @@ function renderProps() {
 }
 function refreshPropsValues() {
   const s = UI.sel; if (!s || UI.tab !== 'props') return; const el = $('#tab-props');
-  if (s.kind === 'item') { const it = findItem(s.id); if (!it) return; const set = (k, v) => { const i = $(`[data-k="${k}"]`, el); if (i && document.activeElement !== i) i.value = v; }; set('x', cm(it.x)); set('z', cm(it.z)); set('w', cm(it.w)); set('d', cm(it.d)); set('h', cm(it.h)); const r = $('[data-k="rot"]', el); if (r) { r.value = Math.round(deg(it.rot)); r.nextElementSibling.textContent = Math.round(deg(it.rot)) + '°'; } }
+  if (s.kind === 'item') { const it = findItem(s.id); if (!it) return; const set = (k, v) => { const i = $(`[data-k="${k}"]`, el); if (i && document.activeElement !== i) i.value = v; }; set('x', cm(it.x)); set('z', cm(it.z)); set('w', cm(it.w)); set('d', cm(it.d)); set('h', cm(it.h)); set('e', cm(it.e || 0)); const r = $('[data-k="rot"]', el); if (r) { r.value = Math.round(deg(it.rot)); r.nextElementSibling.textContent = Math.round(deg(it.rot)) + '°'; } }
   else renderProps();
 }
 function specTarget(ctx) {
@@ -2476,6 +2561,8 @@ $('#tab-props').addEventListener('click', e => {
     else sp.c = b.dataset.v;
     tg.set(sp); drawPlan(); commit(); renderProps(); return;
   }
+  if (act === 'gizmoTranslate') { setGizmoOn(true); setGizmoMode('translate'); renderProps(); return; }
+  if (act === 'gizmoRotate') { setGizmoOn(true); setGizmoMode('rotate'); renderProps(); return; }
   if (act === 'rot90') rotateSel(90);
   else if (act === 'dup') duplicateSel();
   else if (act === 'del') deleteSel();
@@ -2853,14 +2940,35 @@ function renderViewControls() {
   $('#wallSeg').innerHTML = `<span class="lbl">Pereți</span>` + [['cut', 'Tăiați'], ['full', 'Întregi'], ['low', 'Joși']].map(([k, l]) => `<button data-walls="${k}" aria-pressed="${UI.walls === k}">${l}</button>`).join('');
   $('#camSeg').hidden = UI.mode !== 'orbit';
   $('#camSeg').innerHTML = `<button data-cam="iso" title="Vedere de ansamblu">${ic('cube')}</button><button data-cam="top" title="Vedere de sus">${ic('top')}</button>`;
+  const gzEl = $('#gizmoSeg');
+  if (gzEl) {
+    const isItemSel = UI.mode === 'orbit' && UI.sel && UI.sel.kind === 'item';
+    gzEl.hidden = !isItemSel;
+    if (isItemSel) {
+      gzEl.innerHTML = `<span class="lbl">Control 3D</span>` +
+        `<button data-gizmo="translate" aria-pressed="${UI.gizmoOn && UI.gizmoMode === 'translate'}" title="Mută obiectul (T)">🎯 Mută</button>` +
+        `<button data-gizmo="rotate" aria-pressed="${UI.gizmoOn && UI.gizmoMode === 'rotate'}" title="Rotește obiectul (E)">🔄 Rotește</button>` +
+        `<button data-gizmo="toggle" aria-pressed="${UI.gizmoOn}" title="Comută săgețile 3D (Q)">${UI.gizmoOn ? 'Ascunde' : 'Arată'}</button>`;
+    }
+  }
   $('#help').innerHTML = UI.mode === 'orbit'
-    ? 'Trage = rotește · clic dreapta / 2 degete = mută · rotiță = zoom · trage mobila direct în 3D · <b>dublu clic pe podea</b> = intră în cameră'
+    ? 'Trage = rotește · clic dreapta / 2 degete = mută · rotiță = zoom · săgeți 3D (T=mută, E=rotește, Q=on/off) · <b>dublu clic pe podea</b> = intră în cameră'
     : `<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / săgeți = mers · <kbd>Shift</kbd> = alergi · trage = privești · dublu clic = blochează mouse-ul · <kbd>Esc</kbd> = ieșire${matchMedia('(pointer: coarse)').matches ? ' · joystick stânga jos' : ''}`;
   setTool(UI.tool);
 }
 $('#modeSeg').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode); });
 $('#wallSeg').addEventListener('click', e => { const b = e.target.closest('[data-walls]'); if (b) { UI.walls = b.dataset.walls; renderViewControls(); } });
 $('#camSeg').addEventListener('click', e => { const b = e.target.closest('[data-cam]'); if (b) frameCamera(b.dataset.cam); });
+const gzEl = $('#gizmoSeg');
+if (gzEl) {
+  gzEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-gizmo]'); if (!b) return;
+    const act = b.dataset.gizmo;
+    if (act === 'translate') { setGizmoOn(true); setGizmoMode('translate'); }
+    else if (act === 'rotate') { setGizmoOn(true); setGizmoMode('rotate'); }
+    else if (act === 'toggle') { setGizmoOn(!UI.gizmoOn); }
+  });
+}
 function renderTopButtons() {
   $('#bUndo').innerHTML = ic('undo'); $('#bRedo').innerHTML = ic('redo');
   $('#bNight').innerHTML = `${ic(UI.night ? 'sun' : 'moon')}<span class="t">${UI.night ? 'Zi' : 'Noapte'}</span>`;
