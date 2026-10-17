@@ -16,31 +16,31 @@ Ghid de lucru și referință tehnică pentru asistenți AI (Claude Code, Cursor
 
 | Interval Linii | Secțiune | Responsabilitate și Componente Principale |
 |---|---|---|
-| **L1 – L4** | Shell HTML & Fonturi | Titlu, legături Google Fonts (`Inter`, `JetBrains Mono`). |
-| **L5 – L214** | Stiluri CSS (`<style>`) | Teme dark/light, layout flex/grid, bara de unelte, vizualizator split 2D/3D, tab-uri laterale, modale, joystick mobil. |
-| **L216 – L288** | Structură HTML UI | `#app`, `#planWrap` (panza 2D), `#viewWrap` (viewport Three.js), controale overlay, tab-uri (catalog, proprietăți, poze, proiect), dialoguri modale, container de notificări toast. |
-| **L292 – L297** | Import Map | Configurare CDN Three.js r128 și OrbitControls. |
-| **L298 – L304** | Inițializare modul JS | Declarații variabile globale de scenă și stare. |
-| **L305 – L351** | Utilitare & Matematică | `rad(deg)`, `deg(rad)`, `clamp()`, `lerp()`, `uid()`, `hexToRgb()`, gestionare cache texturi. |
-| **L352 – L593** | Texturi procedurale Canvas | Generatoare procedurale pentru: `laminate`, `parquet`, `bigtiles`, `tiles`, `bathBand`, `beigeTiles`, `damask`, `herringbone`, `marble`, `plaster`, `brick`, `dots`, `floral`, `deck`, `wood`, `fabric`, `art`, `collage`. |
-| **L594 – L645** | Catalog de mobilier (`CAT`) | Dicționar cu metadatele tuturor obiectelor: dimensiuni implicite (`w`, `d`, `h`), elevație (`e`), culoare (`c`), textură (`t`), categorie (`g`), etichetă (`n`). |
-| **L646 – L863** | Stare & Modele de date | `baseProject()`, instanțiere camere `R_()`, deschideri `O_()`, obiecte `I_()`. Proiectele demo: `sampleApartment()`, `sampleEmpty()`, `sampleMine()` (apartamentul curent al utilizatorului). Sistemul de istoric `hist` (Undo/Redo) și salvare `localStorage`. |
-| **L864 – L978** | Model Geometric & Pereți | Calcul muchii camere, detectare pereți comuni/exteriori, decupaje pentru goluri de uși și ferestre (`roomEdges`, `hostOf`). |
-| **L979 – L1102** | Configurare Three.js | Instanțiere `Scene`, `PerspectiveCamera`, `WebGLRenderer`, lumini (soare, ambient, umbre), controale `OrbitControls`, plasare avatar manechin. |
-| **L1103 – L1516** | Buildere Mobilier (`BUILD`) | Funcții generatoare de geometrie 3D pentru fiecare tip de obiect din catalog: `sofa`, `armchair`, `diningTable`, `desk`, `officeChair`, `chair`, `bed`, `wardrobe`, `pax`, `dresser`, `tvUnit`, `kitchen`, `sink`, `bathtub`, `toilet`, `washer`, `fridge`, `curtains`, `lantern`, `mirror`, `picture`, `plant`, `box` etc. Utilizează primitivele compuse `B` (Box), `Cy` (Cilindru), `P` (Plan). |
-| **L1517 – L1526** | Instanțiere Obiecte 3D | Funcția `buildItemObj(it)`: creează grupul Three.js, aplică materialele și atașează metadatele `userData.itemId`. |
-| **L1527 – L1661** | Arhitectură 3D (`buildArch`) | Construcție pereți cu goluri pentru uși/ferestre, plinte (`skirting`), tocuri uși, foi de ușă (lemn stejar `oak`, lemn închis `dark`, sticlă `glass`, glisante `slide`), ferestre și balustrade de terasă. |
-| **L1662 – L1681** | Iluminat & Temă Zi/Noapte | `setLighting()`: comutare lumină de zi cu umbre sau mod noapte cu lămpi punctiforme calde. |
-| **L1682 – L1719** | Cameră & Încadrare | Moduri cameră orbit, top-down (`top`), încadrare automată pe camera selectată, cutaway dinamic al pereților (`cut` / `low`). |
-| **L1720 – L1896** | Mod Mers (First / Third Person) | Control deplasare WASD / săgeți, orientare mouse cu pointer lock, avatar manechin în TP, coliziuni elipsoidale cu pereții și piesele mari de mobilier (`itemBlocks`). |
-| **L1897 – L1953** | Selecție & Editare | Scurtături tastatură: `Delete` (ștergere), `Ctrl+Z` (undo), `Ctrl+Y` (redo), `Ctrl+D` (duplicare), `R` (rotire 90°), taste săgeți (ajustare fină poziție), snapping la perete. |
-| **L1954 – L2280** | Plan 2D Canvas | Randare completă plan 2D pe Canvas: scară metrică, pan/zoom, selecție elemente, drag & drop mobilier, cote dimensiuni, arcuri deschidere uși, simboluri grafice pentru obiecte (`drawPlanItem`). |
-| **L2281 – L2316** | Verificări & Validare Model | Motor de validare intern: detecție obiecte suprapuse, uși sau ferestre fără perete gazdă, camere izolate fără acces. |
-| **L2317 – L2493** | Panou Lateral (Inspector) | Rulare tab-uri: Catalog de obiecte pe categorii, Panou de proprietăți pentru elementul selectat (cote, rotație, culori, mostre texturi). |
-| **L2494 – L2752** | Poze & Reconstrucție AI | Etapă de asistență pentru încărcare poze, calibrare puncte de fugă și orientare camere. |
-| **L2753 – L2808** | Tab Proiect & Export/Import | Statistici proiect (suprafețe, piese), redenumire, descărcare fișier JSON și încărcare proiect existent. |
-| **L2809 – L2846** | Chrome UI & Notificări | Butoane antet, mesaje de stare, notificări animate tip toast. |
-| **L2847 – L2872** | Render Loop & Bootstrap | Bucla `requestAnimationFrame`, inițializare evenimente fereastră și încărcare model de pornire (`sampleMine()`). |
+| **L1 – L10** | Shell HTML & Fonturi | Titlu, legături Google Fonts (`Bricolage Grotesque`, `IBM Plex Sans`, `IBM Plex Mono`), `<meta charset="utf-8">`. |
+| **L11 – L220** | Stiluri CSS (`<style>`) | Teme dark/light, layout flex/grid, bara de unelte, vizualizator split 2D/3D, tab-uri laterale, modale, joystick mobil. |
+| **L222 – L294** | Structură HTML UI | `#app`, `#planWrap` (panza 2D), `#viewWrap` (viewport Three.js), controale overlay, tab-uri (catalog, proprietăți, poze, proiect), dialoguri modale, container de notificări toast. |
+| **L298 – L303** | Import Map | Configurare CDN Three.js r128 și OrbitControls. |
+| **L304 – L310** | Inițializare modul JS | Declarații variabile globale de scenă și stare. |
+| **L311 – L357** | Utilitare & Matematică | `rad(deg)`, `deg(rad)`, `clamp()`, `lerp()`, `uid()`, `hexToRgb()`, gestionare cache texturi. |
+| **L358 – L599** | Texturi procedurale Canvas | Generatoare procedurale pentru: `laminate`, `parquet`, `bigtiles`, `tiles`, `bathBand`, `beigeTiles`, `damask`, `herringbone`, `marble`, `plaster`, `brick`, `dots`, `floral`, `deck`, `wood`, `fabric`, `art`, `collage`. |
+| **L600 – L651** | Catalog de mobilier (`CAT`) | Dicționar cu metadatele tuturor obiectelor: dimensiuni implicite (`w`, `d`, `h`), elevație (`e`), culoare (`c`), textură (`t`), categorie (`g`), etichetă (`n`). |
+| **L652 – L869** | Stare & Modele de date | `baseProject()`, instanțiere camere `R_()`, deschideri `O_()`, obiecte `I_()`. Proiectele demo: `sampleApartment()`, `sampleEmpty()`, `sampleMine()`. Sistemul de istoric `hist` (Undo/Redo) și salvare `localStorage`. |
+| **L870 – L984** | Model Geometric & Pereți | Calcul muchii camere, detectare pereți comuni/exteriori, decupaje pentru goluri de uși și ferestre (`roomEdges`, `hostOf`). |
+| **L985 – L1108** | Configurare Three.js | Instanțiere `Scene`, `PerspectiveCamera`, `WebGLRenderer`, lumini (soare, ambient, umbre), controale `OrbitControls`, plasare avatar manechin. |
+| **L1109 – L1522** | Buildere Mobilier (`BUILD`) | Funcții generatoare de geometrie 3D pentru fiecare tip de obiect din catalog: `sofa`, `armchair`, `diningTable`, `desk`, `officeChair`, `chair`, `bed`, `wardrobe`, `pax`, `dresser`, `tvUnit`, `kitchen`, `sink`, `bathtub`, `toilet`, `washer`, `fridge`, `curtains`, `lantern`, `mirror`, `picture`, `plant`, `box` etc. Primitive `B`, `Cy`, `P`. |
+| **L1523 – L1532** | Instanțiere Obiecte 3D | Funcția `buildItemObj(it)`: creează grupul Three.js, aplică materialele și atașează metadatele `userData.itemId`. |
+| **L1533 – L1667** | Arhitectură 3D (`buildArch`) | Construcție pereți cu goluri pentru uși/ferestre, plinte (`skirting`), tocuri uși, foi de ușă (stejar, închis, sticlă, glisante, unghi deschidere reglabil), ferestre și balustrade de terasă. |
+| **L1668 – L1687** | Iluminat & Temă Zi/Noapte | `setLighting()`: comutare lumină de zi cu umbre sau mod noapte cu lămpi punctiforme calde. |
+| **L1688 – L1725** | Cameră & Încadrare | Moduri cameră orbit, top-down (`top`), încadrare automată pe camera selectată, cutaway dinamic al pereților (`cut` / `low`). |
+| **L1726 – L1902** | Mod Mers (First / Third Person) | Control deplasare WASD / săgeți, orientare mouse cu pointer lock, avatar manechin în TP, coliziuni elipsoidale cu pereții și piesele mari de mobilier (`itemBlocks`). |
+| **L1903 – L1959** | Selecție & Editare | Scurtături tastatură: `Delete`, `Ctrl+Z`, `Ctrl+Y`, `Ctrl+D`, `R`, taste săgeți (ajustare fină poziție), snapping la perete. |
+| **L1960 – L2286** | Plan 2D Canvas | Randare completă plan 2D pe Canvas: scară metrică, pan/zoom, selecție elemente, drag & drop mobilier, cote dimensiuni, arcuri deschidere uși, simboluri grafice pentru obiecte (`drawPlanItem`). |
+| **L2287 – L2322** | Verificări & Validare Model | Motor de validare intern: detecție obiecte suprapuse, uși sau ferestre fără perete gazdă, camere izolate fără acces. |
+| **L2323 – L2499** | Panou Lateral (Inspector) | Rulare tab-uri: Catalog de obiecte pe categorii, Panou de proprietăți pentru elementul selectat (cote, rotație, culori, mostre texturi). |
+| **L2500 – L2758** | Poze & Reconstrucție AI | Etapă de asistență pentru încărcare poze, calibrare puncte de fugă și orientare camere. |
+| **L2759 – L2839** | Tab Proiect & Export/Import | Statistici proiect, redenumire, descărcare directă fișier JSON și PNG, încărcare fișier cu resetare input. |
+| **L2840 – L2877** | Chrome UI & Notificări | Butoane antet, mesaje de stare, notificări animate tip toast. |
+| **L2878 – L2907** | Render Loop & Bootstrap | Bucla `requestAnimationFrame`, inițializare evenimente fereastră și încărcare model de pornire (`sampleMine()`). |
 
 ---
 

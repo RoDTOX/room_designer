@@ -1,4 +1,8 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Odaia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -213,6 +217,8 @@ details summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:4px 0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+</head>
+<body>
 
 <div id="app">
   <header class="top">
@@ -1615,7 +1621,7 @@ function buildOpening(o, h) {
     const glass = o.style === 'glass', leafM = o.finish === 'dark' ? M.doorDark : o.finish === 'white' ? M.doorLeaf : M.doorOak, fm = glass ? M.winFrame : leafM;
     for (const s of [-1, 1]) B(g, .045, hh, t + .03, s * (w / 2 - .0225), hh / 2, 0, fm, .004);
     B(g, w, .045, t + .03, 0, hh - .0225, 0, fm, .004);
-    const dir = o.dir >= 0 ? 1 : -1, lh = hh - .05, ang = rad(glass ? 70 : 80);
+    const dir = o.dir >= 0 ? 1 : -1, lh = hh - .05, ang = rad(o.openAngle !== undefined ? o.openAngle : (glass ? 70 : 80));
     if (glass && o.slide) {
       // lift-and-slide: two overlapping panels on offset tracks
       const lw = (w - .09) / 2 + .035;
@@ -2786,19 +2792,44 @@ $('#tab-project').addEventListener('click', e => {
 });
 $('#tab-project').addEventListener('change', async e => {
   if (e.target.id !== 'pjImport') return; const f = e.target.files[0]; if (!f) return;
-  try { const txt = await f.text(); const msg = importLayout(JSON.parse(txt)); toast(msg); } catch (err) { toast('Fișierul nu e un proiect valid: ' + (err.message || err)); }
+  try { const txt = await f.text(); const msg = importLayout(JSON.parse(txt)); toast(msg); } catch (err) { toast('Fișierul nu e un proiect valid: ' + (err.message || err)); } finally { e.target.value = ''; }
 });
 async function exportProject() {
   const json = JSON.stringify(S, null, 1), fname = (S.name || 'odaia').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').toLowerCase() + '.json';
   openModal('Exportă proiectul', `<p>Salvează fișierul sau copiază textul. Îl poți importa din tabul Proiect, pe orice dispozitiv.</p><textarea class="txt" id="expArea" rows="9" readonly>${esc(json)}</textarea>`,
-    `${downloads ? '<button class="btn primary" id="expSave">Salvează fișierul</button>' : ''}<button class="btn" id="expCopy">Copiază</button><span class="note" id="expNote"></span>`);
+    `<button class="btn primary" id="expSave">Salvează fișierul</button><button class="btn" id="expCopy">Copiază</button><span class="note" id="expNote"></span>`);
   $('#expCopy').onclick = () => copyText(json, $('#expCopy'));
-  if (downloads) $('#expSave').onclick = async () => { try { await downloads.save({ filename: fname, data: json }); $('#expNote').textContent = 'Salvat.'; } catch (err) { $('#expNote').textContent = err && err.code === 'declined' ? 'Salvare anulată.' : 'Salvarea nu e disponibilă aici; folosește Copiază.'; } };
+  $('#expSave').onclick = async () => {
+    try {
+      if (downloads) {
+        await downloads.save({ filename: fname, data: json });
+      } else {
+        const blob = new Blob([json], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname;
+        document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 150);
+      }
+      $('#expNote').textContent = 'Salvat.';
+    } catch (err) {
+      $('#expNote').textContent = err && err.code === 'declined' ? 'Salvare anulată.' : 'Salvarea nu e disponibilă aici; folosește Copiază.';
+    }
+  };
 }
 function takeShot() {
   renderer.render(scene, camera); const url = renderer.domElement.toDataURL('image/png');
-  openModal('Captură 3D', `<img class="shot" src="${url}" alt="Captură a vederii 3D">${downloads ? '' : '<p class="note">Clic dreapta pe imagine → „Salvează imaginea ca…”.</p>'}`, downloads ? '<button class="btn primary" id="shotSave">Salvează PNG</button><span class="note" id="shotNote"></span>' : '');
-  if (downloads) $('#shotSave').onclick = () => renderer.domElement.toBlob(async blob => { try { await downloads.save({ filename: 'odaia-3d.png', data: blob }); $('#shotNote').textContent = 'Salvat.'; } catch (err) { $('#shotNote').textContent = err && err.code === 'declined' ? 'Salvare anulată.' : 'Salvarea nu e disponibilă; folosește clic dreapta pe imagine.'; } }, 'image/png');
+  openModal('Captură 3D', `<img class="shot" src="${url}" alt="Captură a vederii 3D"><p class="note">Clic dreapta pe imagine → „Salvează imaginea ca…” sau apasă butonul de mai jos.</p>`, '<button class="btn primary" id="shotSave">Salvează PNG</button><span class="note" id="shotNote"></span>');
+  $('#shotSave').onclick = () => renderer.domElement.toBlob(async blob => {
+    try {
+      if (downloads) {
+        await downloads.save({ filename: 'odaia-3d.png', data: blob });
+      } else {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'odaia-3d.png';
+        document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 150);
+      }
+      $('#shotNote').textContent = 'Salvat.';
+    } catch (err) {
+      $('#shotNote').textContent = err && err.code === 'declined' ? 'Salvare anulată.' : 'Salvarea nu e disponibilă; folosește clic dreapta pe imagine.';
+    }
+  }, 'image/png');
 }
 function openModal(title, body, foot) {
   $('#mGenericSheet').innerHTML = `<header><h3>${esc(title)}</h3><button class="ibtn" data-close aria-label="Închide">✕</button></header><div class="body">${body}</div>${foot ? `<footer>${foot}</footer>` : ''}`;
@@ -2871,5 +2902,5 @@ initCaps();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawPlan());
 window.addEventListener('error', ev => { console.error(ev.error || ev.message); });
 </script>
-
-</body></html>
+</body>
+</html>
