@@ -1,0 +1,7 @@
+# Temporary / OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Local preview caches if created
+.preview/
