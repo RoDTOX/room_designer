@@ -23,7 +23,7 @@ Odaia este o aplicație web autonomă pentru planificarea și amenajarea 2D/3D a
 Nu deschide fișierul prin dublu-click direct din File Explorer (protocoalele `file://` pot bloca unele module ES). Pornește un server HTTP local:
 
 ```bash
-cd "C:/Users/BSeceleanu/OneDrive - Luxoft/Documents/Odaia"
+cd "C:/Users/BS/OneDrive - X/Documents/Odaia"
 python -m http.server 8765
 ```
 
